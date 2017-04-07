@@ -1,0 +1,91 @@
+body{
+		padding-top:10px;
+		padding-bottom:40px;
+		background-color: #F5F5F5;
+		font-family: microsoft yahei;
+	}
+a:hover{
+	text-decoration: none;
+}
+a:visited{
+	text-decoration: none;
+}
+a:link{
+	text-decoration: none;
+}
+.blog{
+    font-style: inherit;
+    font-size: 31px;
+    color: #5baad9;
+    margin-top: 16px;
+    margin-left: 25px;
+}
+
+.blog_list{
+	border: 1px solid #E5E5E5;
+	padding: 10px;
+	background-color: #FDFDFD;
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
+.list_title{
+	padding-bottom: 10px;
+}
+
+.blog_datas{
+	margin-left: -28px;	
+}
+
+.blog_datas ul li{
+	margin-top: -15px;
+	list-style: none;
+}
+.info{
+	margin-top: 10px;
+	text-align: right;
+}
+.summary{
+	margin-top: 10px;
+}
+.blogger_img{
+	margin-top: -20px;
+}
+.nick{
+	margin-top: 5px;
+}
+.motto{
+	margin-top: 10px;
+}
+/*图标系列获取单个图标 start*/
+.title .ico_type_Original {
+    background-image: url(../images/skin-type-icon.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0;
+}
+.title .ico {
+    display: inline-block;
+    vertical-align: middle;
+    width: 19px;
+    height: 19px;
+    margin-right: 10px;
+}
+/*图标系列获取单个图标  end*/
+
+.title .title_name{
+	font-size: 20px;
+	vertical-align: middle;
+}
+.blog_type{
+	margin-left: -25px;	
+}
+.blog_type ul li{
+	list-style: none;
+	margin-top: 10px;
+}
+.blog_link{
+	margin-left: 15px;	
+}
+.tail{
+	font-size: 16px;
+}

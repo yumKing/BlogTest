@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.dao.BlogDao">
+    
+    <resultMap type="Blog" id="BlogResult">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="summary" column="summary" />
+        <result property="releaseDate" column="releaseDate" />
+        <result property="clickHit" column="clickHit" />
+        <result property="replyHit" column="replyHit" />
+        <result property="content" column="content" />
+        <result property="keywords" column="keywords" />
+    
+    	<association property="blogType" column="typy_id" select="com.blog.dao.BlogTypeDao.findById"></association>
+    	
+    </resultMap>
+    
+    <select id="listBlog" parameterType="java.util.HashMap" resultMap="BlogResult" >
+        select * from t_blog
+        <if test="start!=null and pageSize!=null">
+            limit #{start},#{pageSize}
+        </if>
+    </select>
+    
+    <select id="findById" resultMap="BlogResult">
+        select * from t_blog from id=#{id}
+    </select>
+    
+    <select id="getBlogByBlogTypeId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(*) from t_blog where type_id=#{id}
+    </select>
+    
+    <select id="getBlogData" resultMap="BlogResult">
+        select * from t_blog
+    </select>
+    
+    <insert id="addBlog" parameterType="com.blog.entity.Blog" >
+        insert into t_blog(type_id,title,summary,releaseDate,clickHit,replyHit,content,keywords) values(#{blogType.id},#{title},#{summary},now(),0,0,#{content},#{keywords})
+    </insert>
+    
+    <update id="updateBlog" parameterType="com.blog.entity.Blog">
+        update t_blog
+        <set>
+            <if test="title!=null">
+                title=#{title},
+            </if>
+            <if test="blogType.id != null">
+                type_id=#{blogType.id},
+            </if>
+            <if test="summary!=null">
+                summary=#{summary},
+            </if>
+            <if test="releaseDate!=null">
+                releaseDate=#{releaseDate},
+            </if>
+            <if test="cotent!=null">
+                cotent=#{cotent},
+            </if>
+            <if test="keywords!=null">
+                keywords=#{keywords}
+            </if>
+            
+        </set>
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteById">
+        delete from t_blog where id=#{id}
+    </delete>
+    
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from t_blog
+    </select>
+    
+</mapper>
