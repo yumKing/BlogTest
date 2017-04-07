@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="    
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd  
+        http://www.springframework.org/schema/jee 
+        http://www.springframework.org/schema/jee/spring-jee-4.0.xsd  
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+        
+    <!-- 设置自动扫描包中的bean -->
+    <context:component-scan base-package="com.blog.*"></context:component-scan>
+    
+    <!-- 配置数据源 ，使用阿里巴巴连接池Druid-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="jdbc:mysql://localhost:3306/zspringibatis?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false" />
+        <property name="username" value="root" />
+        <property name="password" value="root" />
+    </bean>
+    
+    <!-- 配置ibatis的sqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 添加数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 设置自动扫描sql语句的xml文件（一系列mapper.xml） -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+        <!-- 添加ibatis配置信息  ,可以不要-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+    </bean>
+    
+    <!-- 扫描DAO接口 -->
+    <bean id="" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.blog.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+    
+    <!-- 事务管理 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 添加数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    
+    <!-- 自定义realm -->
+    <bean id="myRealm" class="com.blog.realm.MyRealm"></bean>
+    
+    <!-- 安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- 添加自定义realm -->
+        <property name="realm" ref="myRealm"></property>
+    </bean>
+    
+    <!-- shiro过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!-- shiro安全核心接口，属性必须 -->
+        <property name="securityManager" ref="securityManager"></property>
+        <!-- 身份认证失败，跳转到登录界面 -->
+        <property name="loginUrl" value="/login.jsp"></property>
+        <!-- 权限认证失败，则跳转到指定页面，个人博客只一人，暂不加权限 -->
+        <!-- <property name="unauthorizedUrl" value=""></property> -->
+        
+        <!-- shiro链接约束配置，即过滤链的定义 -->
+        <property name="filterChainDefinitions">
+            <value>
+                /login=anon
+                /admin/**=authc
+            </value>
+        </property>
+    </bean>
+    
+    <!-- 保证了shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProccessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"></bean>
+    
+    <!-- 开启shiro注解 -->
+    <bean id="" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProccessor" />
+    <bean id="" class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <!-- 添加安全管理器 -->
+        <property name="securityManager" ref="securityManager"></property>
+    </bean>
+    
+    <!-- 配置事务通知属性 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!-- 定义事务传播属性 -->
+        <tx:attributes>
+            <tx:method name="insert" propagation="REQUIRED"/>
+            <tx:method name="update" propagation="REQUIRED"/>
+            <tx:method name="edit*" propagation="REQUIRED"/>
+            <tx:method name="save*" propagation="REQUIRED"/>
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="new*" propagation="REQUIRED"/>
+            <tx:method name="set*" propagation="REQUIRED"/>
+            <tx:method name="remove*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="change*" propagation="REQUIRED"/>
+            <tx:method name="check*" propagation="REQUIRED"/>
+            <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="load*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED" />
+        </tx:attributes>
+    </tx:advice>
+    <!-- 配置事务切面 -->
+    <aop:config>
+        <aop:pointcut expression="execution(* com.blog.service.*.*(..))" id="pointCut"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut"/>
+    </aop:config>
+    
+</beans>

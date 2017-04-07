@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.dao.BlogTypeDao">
+    
+    <resultMap type="BlogType" id="BlogTypeResult">
+        <id property="id" column="id" />
+        <result property="typeName" column="typeName" />
+        <result property="orderNum" column="orderNum" />
+        <result property="blogNum" column="blogNum" />
+    </resultMap>
+    
+    <select id="getBlogTypeData" resultMap="BlogTypeResult">
+        select t2.* , count(t1.id) as blogCount
+        from t_blog t1 right join t_blogtype t2 
+        on t1.type_id = t2.id 
+        group by t2.typeName 
+        order by t2.orderNum
+    </select>
+    
+    <select id="listBlogType" parameterType="java.util.HashMap" resultMap="BlogTypeResult">
+        select * from t_blogtype
+    	<if test="start!=null and pageSize!=null">
+    	    limit #{start},#{pageSize}
+    	</if>    
+    </select>
+    
+    <select id="findById" parameterType="java.lang.Integer" resultMap="BlogTypeResult">
+        select * from t_blogType where id=#{id}
+    </select>
+    
+    <insert id="addBlogType" parameterType="com.blog.entity.BlogType" keyProperty="id" useGeneratedKeys="true">
+        insert into t_blogtype(typeName,orderNum) values(#{typeName},#{orderNum}) 
+    </insert>
+    
+    <update id="updateBlogType" parameterType="com.blog.entity.BlogType" >
+        update t_blogtype 
+        <set>
+            <if test="typeName!=null and typeName != ''">
+                typeName = #{typeName},
+            </if>
+            <if test="orderNum!=null and orderNum != ''">
+                orderNum = #{orderNum},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from t_blogtype where id=#{id}
+    </delete>
+    
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from t_blogtype
+    </select>
+</mapper>
